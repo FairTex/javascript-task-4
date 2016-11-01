@@ -4,7 +4,7 @@
  * Сделано задание на звездочку
  * Реализованы методы or и and
  */
-exports.isStar = false;
+exports.isStar = true;
 
 var SELECTED_FIELDS;
 
@@ -159,6 +159,7 @@ if (exports.isStar) {
         var functions = [].slice.call(arguments, 0);
 
         var or = function (collection) {
+            collection = fullCopy(collection);
             var result = [];
             for (var i = 0; i < functions.length; i++) {
                 result = result.concat(functions[i](collection));
