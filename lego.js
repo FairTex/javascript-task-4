@@ -160,12 +160,14 @@ if (exports.isStar) {
 
         var or = function (collection) {
             var filterCollection = fullCopy(collection);
-            var result = [];
-            for (var i = 0; i < functions.length; i++) {
-                result = result.concat(functions[i](filterCollection));
-            }
 
-            return result;
+            var fltrC = filterCollection.filter(function (entry) {
+                return functions.some(function (f) {
+                    return f([entry]).length > 0;
+                });
+            });
+
+            return fltrC;
         };
 
         return or;
