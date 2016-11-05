@@ -37,10 +37,13 @@ function sortByPriority(f1, f2) {
 function fullCopy(arr) {
 
     return arr.reduce(function (acc, current) {
-        acc.push(Object.keys(current).reduce(function (obj, key) {
+        return acc.push(Object.keys(current).reduce(function (obj, key) {
             obj[key] = current[key];
+
+            return obj;
         }, {}));
     }, []);
+
    /*
     arr.forEach(function (obj) {
         var keys = Object.keys(obj);
