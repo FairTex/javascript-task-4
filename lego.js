@@ -19,9 +19,9 @@ exports.query = function (collection) {
 
     var functions = [].slice.call(arguments, 1);
     functions.sort(sortByPriority);
-    for (var i = 0; i < functions.length; i++) {
-        filterCollection = functions[i](filterCollection);
-    }
+    functions.forEach(function (func) {
+        filterCollection = func(filterCollection);
+    });
 
     SELECTED_FIELDS = undefined;
 
@@ -35,32 +35,35 @@ function sortByPriority(f1, f2) {
 }
 
 function fullCopy(arr) {
-    var copy = [];
 
-    arr.forEach(function (obj) {
-        var keys = Object.keys(obj);
-        var copyObj = {};
-        keys.forEach(function (key) {
-            copyObj[key] = obj[key];
-        });
-        copy.push(copyObj);
-    });
+    return arr.slice();
 
-    return copy;
+    // var copy = [];
+    //
+    // return arr.reduce(function (acc, current) {
+    //     acc.push(Object.keys(current).reduce(function (obj, key) {
+    //         obj[key] = current[key];
+    //     }, {}));
+    // }, []);
+    //
+    // arr.forEach(function (obj) {
+    //     var keys = Object.keys(obj);
+    //     var copyObj = {};
+    //     keys.forEach(function (key) {
+    //         copyObj[key] = obj[key];
+    //     });
+    //     copy.push(copyObj);
+    // });
+    //
+    // return copy;
 }
 
 function intersec(arr1, arr2) {
-    var idx = 0;
-    var arr3 = [];
 
-    for (var i = 0; i < arr2.length; i++) {
-        idx = arr1.indexOf(arr2[i]);
-        if (idx >= 0) {
-            arr3.push(arr2[i]);
-        }
-    }
+    return arr2.filter(function (elem) {
 
-    return arr3;
+        return arr1.indexOf(elem) !== -1;
+    });
 }
 
 exports.select = function () {
@@ -72,20 +75,21 @@ exports.select = function () {
     }
 
     var select = function (collection) {
-        collection.map(function (entry) {
+        var newCollection = [];
+
+        collection.forEach(function (entry) {
+            var obj = {};
             var keys = Object.keys(entry);
             keys.forEach(function (key) {
-                if (SELECTED_FIELDS.indexOf(key) === -1) {
-                    if (entry.hasOwnProperty(key)) {
-                        delete entry[key];
-                    }
+                if (SELECTED_FIELDS.indexOf(key) !== -1) {
+                    obj[key] = entry[key];
                 }
             });
 
-            return entry;
+            newCollection.push(obj);
         });
 
-        return collection;
+        return newCollection;
     };
 
     return select;
@@ -94,12 +98,8 @@ exports.select = function () {
 exports.filterIn = function (property, values) {
     var filterIn = function (collection) {
         collection = collection.filter(function (entry) {
-            if (entry.hasOwnProperty(property)) {
 
-                return values.indexOf(entry[property]) !== -1;
-            }
-
-            return 0;
+            return values.indexOf(entry[property]) !== -1;
         });
 
         return collection;
@@ -161,13 +161,11 @@ if (exports.isStar) {
         var or = function (collection) {
             var filterCollection = fullCopy(collection);
 
-            var fltrC = filterCollection.filter(function (entry) {
-                return functions.some(function (f) {
-                    return f([entry]).length > 0;
+            return filterCollection.filter(function (entry) {
+                return functions.some(function (func) {
+                    return func([entry]).length > 0;
                 });
             });
-
-            return fltrC;
         };
 
         return or;
@@ -178,9 +176,10 @@ if (exports.isStar) {
 
         var and = function (collection) {
             var filterCollection = fullCopy(collection);
-            for (var i = 0; i < functions.length; i++) {
-                filterCollection = functions[i](filterCollection);
-            }
+
+            functions.forEach(function (func) {
+                filterCollection = func(filterCollection);
+            });
 
             return filterCollection;
         };
