@@ -36,16 +36,12 @@ function sortByPriority(f1, f2) {
 
 function fullCopy(arr) {
 
-    // return arr.slice();
-
-    var copy = [];
-    //
-    // return arr.reduce(function (acc, current) {
-    //     acc.push(Object.keys(current).reduce(function (obj, key) {
-    //         obj[key] = current[key];
-    //     }, {}));
-    // }, []);
-    //
+    return arr.reduce(function (acc, current) {
+        acc.push(Object.keys(current).reduce(function (obj, key) {
+            obj[key] = current[key];
+        }, {}));
+    }, []);
+   /*
     arr.forEach(function (obj) {
         var keys = Object.keys(obj);
         var copyObj = {};
@@ -56,6 +52,7 @@ function fullCopy(arr) {
     });
 
     return copy;
+    */
 }
 
 function intersec(arr1, arr2) {
