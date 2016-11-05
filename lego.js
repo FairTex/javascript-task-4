@@ -36,9 +36,9 @@ function sortByPriority(f1, f2) {
 
 function fullCopy(arr) {
 
-    return arr.slice();
+    // return arr.slice();
 
-    // var copy = [];
+    var copy = [];
     //
     // return arr.reduce(function (acc, current) {
     //     acc.push(Object.keys(current).reduce(function (obj, key) {
@@ -46,16 +46,16 @@ function fullCopy(arr) {
     //     }, {}));
     // }, []);
     //
-    // arr.forEach(function (obj) {
-    //     var keys = Object.keys(obj);
-    //     var copyObj = {};
-    //     keys.forEach(function (key) {
-    //         copyObj[key] = obj[key];
-    //     });
-    //     copy.push(copyObj);
-    // });
-    //
-    // return copy;
+    arr.forEach(function (obj) {
+        var keys = Object.keys(obj);
+        var copyObj = {};
+        keys.forEach(function (key) {
+            copyObj[key] = obj[key];
+        });
+        copy.push(copyObj);
+    });
+
+    return copy;
 }
 
 function intersec(arr1, arr2) {
