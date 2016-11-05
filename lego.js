@@ -36,12 +36,14 @@ function sortByPriority(f1, f2) {
 
 function fullCopy(arr) {
 
-    return arr.reduce(function (acc, current) {
-        return acc.push(Object.keys(current).reduce(function (obj, key) {
+    return arr.reduce(function (copyArr, current) {
+        copyArr.push(Object.keys(current).reduce(function (obj, key) {
             obj[key] = current[key];
 
             return obj;
         }, {}));
+
+        return copyArr;
     }, []);
 
    /*
