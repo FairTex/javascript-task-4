@@ -11,7 +11,7 @@ exports.query = function (collection) {
     var functions = [].slice.call(arguments, 1);
     functions.sort(sortByPriority);
 
-    functions.reduce(function (acc, func) {
+    filterCollection = functions.reduce(function (acc, func) {
         return func(acc);
     }, filterCollection);
 
@@ -157,7 +157,7 @@ if (exports.isStar) {
             });
             */
 
-            functions.reduce(function (acc, func) {
+            filterCollection = functions.reduce(function (acc, func) {
                 return func(acc);
             }, filterCollection);
 
