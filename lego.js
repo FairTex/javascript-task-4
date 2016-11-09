@@ -3,21 +3,14 @@
 exports.isStar = true;
 
 var ASC = 'asc';
-// var SELECTED_FIELDS;
 
 exports.query = function (collection) {
-    var filterCollection = fullCopy(collection);
-
     var functions = [].slice.call(arguments, 1);
     functions.sort(sortByPriority);
 
-    filterCollection = functions.reduce(function (acc, func) {
+    return functions.reduce(function (acc, func) {
         return func(acc);
-    }, filterCollection);
-
-    // SELECTED_FIELDS = undefined;
-
-    return filterCollection;
+    }, fullCopy(collection));
 };
 
 function sortByPriority(f1, f2) {
@@ -39,56 +32,30 @@ function fullCopy(arr) {
     }, []);
 }
 
-/*
-
-function intersec(arr1, arr2) {
-
-    return arr2.filter(function (elem) {
-
-        return arr1.indexOf(elem) !== -1;
-    });
-}
-*/
-
 exports.select = function () {
     var fields = [].slice.call(arguments);
 
-    /*
-    if (!SELECTED_FIELDS) {
-        SELECTED_FIELDS = fields;
-    } else {
-        SELECTED_FIELDS = intersec(SELECTED_FIELDS, fields);
-    }
-    */
-
     return function select(collection) {
-        var newCollection = [];
 
-        collection.forEach(function (entry) {
-            var obj = {};
-            var keys = Object.keys(entry);
-            keys.forEach(function (key) {
+        return collection.reduce(function (filterCollection, entry) {
+            return filterCollection.concat([Object.keys(entry).reduce(function (obj, key) {
                 if (fields.indexOf(key) !== -1) {
                     obj[key] = entry[key];
                 }
-            });
 
-            newCollection.push(obj);
-        });
-
-        return newCollection;
+                return obj;
+            }, {})]);
+        }, []);
     };
 };
 
 exports.filterIn = function (property, values) {
 
     return function filterIn(collection) {
-        collection = collection.filter(function (entry) {
 
+        return collection.filter(function (entry) {
             return values.indexOf(entry[property]) !== -1;
         });
-
-        return collection;
     };
 };
 
@@ -109,15 +76,14 @@ exports.sortBy = function (property, order) {
 exports.format = function (property, formatter) {
 
     return function format(collection) {
-        collection = collection.map(function (entry) {
+
+        return collection.map(function (entry) {
             if (entry.hasOwnProperty(property)) {
                 entry[property] = formatter(entry[property]);
             }
 
             return entry;
         });
-
-        return collection;
     };
 };
 
@@ -135,7 +101,6 @@ if (exports.isStar) {
         var functions = [].slice.call(arguments, 0);
 
         return function or(collection) {
-            // var filterCollection = fullCopy(collection);
 
             return collection.filter(function (entry) {
                 return functions.some(function (func) {
@@ -149,19 +114,10 @@ if (exports.isStar) {
         var functions = [].slice.call(arguments);
 
         return function and(collection) {
-            var filterCollection = fullCopy(collection);
 
-            /*
-            functions.forEach(function (func) {
-                filterCollection = func(filterCollection);
-            });
-            */
-
-            filterCollection = functions.reduce(function (acc, func) {
+            return functions.reduce(function (acc, func) {
                 return func(acc);
-            }, filterCollection);
-
-            return filterCollection;
+            }, collection);
         };
     };
 }
