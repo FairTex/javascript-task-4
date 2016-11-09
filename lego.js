@@ -8,8 +8,8 @@ exports.query = function (collection) {
     var functions = [].slice.call(arguments, 1);
     functions.sort(sortByPriority);
 
-    return functions.reduce(function (acc, func) {
-        return func(acc);
+    return functions.reduce(function (filteredCollection, func) {
+        return func(filteredCollection);
     }, fullCopy(collection));
 };
 
@@ -35,8 +35,8 @@ exports.select = function () {
 
     return function select(collection) {
 
-        return collection.reduce(function (filterCollection, entry) {
-            return filterCollection.concat([Object.keys(entry).reduce(function (obj, key) {
+        return collection.reduce(function (filteredCollection, entry) {
+            return filteredCollection.concat([Object.keys(entry).reduce(function (obj, key) {
                 if (fields.indexOf(key) !== -1) {
                     obj[key] = entry[key];
                 }
