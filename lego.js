@@ -22,13 +22,11 @@ function sortByPriority(f1, f2) {
 function fullCopy(arr) {
 
     return arr.reduce(function (copyArr, current) {
-        copyArr.push(Object.keys(current).reduce(function (obj, key) {
+        return copyArr.concat([Object.keys(current).reduce(function (obj, key) {
             obj[key] = current[key];
 
             return obj;
-        }, {}));
-
-        return copyArr;
+        }, {})]);
     }, []);
 }
 
@@ -115,8 +113,8 @@ if (exports.isStar) {
 
         return function and(collection) {
 
-            return functions.reduce(function (acc, func) {
-                return func(acc);
+            return functions.reduce(function (filteredCollection, func) {
+                return func(filteredCollection);
             }, collection);
         };
     };
