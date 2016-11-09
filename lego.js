@@ -1,29 +1,21 @@
 'use strict';
 
-/**
- * Сделано задание на звездочку
- * Реализованы методы or и and
- */
 exports.isStar = true;
 
-var SELECTED_FIELDS;
+var ASC = 'asc';
+// var SELECTED_FIELDS;
 
-/**
- * Запрос к коллекции
- * @param {Array} collection
- * @params {...Function} – Функции для запроса
- * @returns {Array}
- */
 exports.query = function (collection) {
     var filterCollection = fullCopy(collection);
 
     var functions = [].slice.call(arguments, 1);
     functions.sort(sortByPriority);
-    functions.forEach(function (func) {
-        filterCollection = func(filterCollection);
-    });
 
-    SELECTED_FIELDS = undefined;
+    functions.reduce(function (acc, func) {
+        return func(acc);
+    }, filterCollection);
+
+    // SELECTED_FIELDS = undefined;
 
     return filterCollection;
 };
@@ -45,20 +37,9 @@ function fullCopy(arr) {
 
         return copyArr;
     }, []);
-
-   /*
-    arr.forEach(function (obj) {
-        var keys = Object.keys(obj);
-        var copyObj = {};
-        keys.forEach(function (key) {
-            copyObj[key] = obj[key];
-        });
-        copy.push(copyObj);
-    });
-
-    return copy;
-    */
 }
+
+/*
 
 function intersec(arr1, arr2) {
 
@@ -67,23 +48,27 @@ function intersec(arr1, arr2) {
         return arr1.indexOf(elem) !== -1;
     });
 }
+*/
 
 exports.select = function () {
     var fields = [].slice.call(arguments);
+
+    /*
     if (!SELECTED_FIELDS) {
         SELECTED_FIELDS = fields;
     } else {
         SELECTED_FIELDS = intersec(SELECTED_FIELDS, fields);
     }
+    */
 
-    var select = function (collection) {
+    return function select(collection) {
         var newCollection = [];
 
         collection.forEach(function (entry) {
             var obj = {};
             var keys = Object.keys(entry);
             keys.forEach(function (key) {
-                if (SELECTED_FIELDS.indexOf(key) !== -1) {
+                if (fields.indexOf(key) !== -1) {
                     obj[key] = entry[key];
                 }
             });
@@ -93,12 +78,11 @@ exports.select = function () {
 
         return newCollection;
     };
-
-    return select;
 };
 
 exports.filterIn = function (property, values) {
-    var filterIn = function (collection) {
+
+    return function filterIn(collection) {
         collection = collection.filter(function (entry) {
 
             return values.indexOf(entry[property]) !== -1;
@@ -106,32 +90,25 @@ exports.filterIn = function (property, values) {
 
         return collection;
     };
-
-    return filterIn;
 };
 
 exports.sortBy = function (property, order) {
-    var sortBy = function (collection) {
+
+    return function sortBy(collection) {
         collection.sort(function (el1, el2) {
-            if (order === 'asc') {
 
-                return el1[property] > el2[property];
-            } else if (order === 'desc') {
-
-                return el1[property] < el2[property];
-            }
-
-            return 1;
+            return order === ASC
+                ? el1[property] > el2[property]
+                : el1[property] < el2[property];
         });
 
         return collection;
     };
-
-    return sortBy;
 };
 
 exports.format = function (property, formatter) {
-    var format = function (collection) {
+
+    return function format(collection) {
         collection = collection.map(function (entry) {
             if (entry.hasOwnProperty(property)) {
                 entry[property] = formatter(entry[property]);
@@ -142,17 +119,14 @@ exports.format = function (property, formatter) {
 
         return collection;
     };
-
-    return format;
 };
 
 exports.limit = function (count) {
-    var limit = function (collection) {
+
+    return function limit(collection) {
 
         return collection.slice(0, count);
     };
-
-    return limit;
 };
 
 if (exports.isStar) {
@@ -160,32 +134,34 @@ if (exports.isStar) {
     exports.or = function () {
         var functions = [].slice.call(arguments, 0);
 
-        var or = function (collection) {
-            var filterCollection = fullCopy(collection);
+        return function or(collection) {
+            // var filterCollection = fullCopy(collection);
 
-            return filterCollection.filter(function (entry) {
+            return collection.filter(function (entry) {
                 return functions.some(function (func) {
                     return func([entry]).length > 0;
                 });
             });
         };
-
-        return or;
     };
 
     exports.and = function () {
         var functions = [].slice.call(arguments);
 
-        var and = function (collection) {
+        return function and(collection) {
             var filterCollection = fullCopy(collection);
 
+            /*
             functions.forEach(function (func) {
                 filterCollection = func(filterCollection);
             });
+            */
+
+            functions.reduce(function (acc, func) {
+                return func(acc);
+            }, filterCollection);
 
             return filterCollection;
         };
-
-        return and;
     };
 }
